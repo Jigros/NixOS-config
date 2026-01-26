@@ -9,23 +9,24 @@
   ];
 
   config.var = {
-    hostname = "nixy";
-    username = "hadi";
+    hostname = "nixos";
+    username = "the_cet";
     configDirectory =
       "/home/"
       + config.var.username
-      + "/.config/nixos"; # The path of the nixos configuration directory
+      + "/NixOS-config/"; # The path of the nixos configuration directory
 
-    keyboardLayout = "fr";
+    keyboardLayout = "us";
+    #keyboardVariant = "ruchey_ru";
 
-    location = "Paris";
-    timeZone = "Europe/Paris";
+    location = "Vladivostok  ";
+    timeZone = "Asia/Vladivostok";
     defaultLocale = "en_US.UTF-8";
-    extraLocale = "fr_FR.UTF-8";
+    extraLocale = "ru_RU.UTF-8";
 
     git = {
-      username = "Hadi";
-      email = "112569860+anotherhadi@users.noreply.github.com";
+      username = "Jigros";
+      email = "209211492+Jigros@users.noreply.github.com";
     };
 
     autoUpgrade = false;

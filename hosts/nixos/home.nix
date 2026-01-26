@@ -22,6 +22,9 @@
     ../../home/programs/lazygit
     ../../home/programs/discord
     ../../home/programs/tailscale
+    ../../home/programs/brave
+    ../../home/programs/orca-stable
+
 
     # Scripts
     ../../home/scripts # All scripts
@@ -38,8 +41,13 @@
     ../../home/system/wofi
     # ../../home/system/hypridle
 
-    ./secrets # CHANGEME: You should probably remove this line, this is where I store my secrets
+    # ./secrets # CHANGEME: You should probably remove this line, this is where I store my secrets
   ];
+  
+  
+  
+
+
 
   home = {
     inherit (config.var) username;
@@ -51,22 +59,30 @@
       vlc # Video player
       blanket # White-noise app
       obsidian # Note taking app
-      planify # Todolists
+      #planify # Todolists
       textpieces # Manipulate texts
       curtail # Compress images
       resources # Ressource monitor
       gnome-clocks # Clocks app
       gnome-text-editor # Basic graphic text editor
       mpv # Video player
-      brave # Web browser
+      #brave # Web browser
+      ayugram-desktop
+      steam
+      prismlauncher
+      #equicord
+      
 
       # Privacy
-      session-desktop # Session app, private messages
-      signal-desktop # Signal app, private messages
-      protonvpn-gui
-      proton-pass
-      proton-authenticator
-      ticktick # Privacy friendly todo app
+      throne
+      v2rayn
+      amnezia-vpn
+      #session-desktop # Session app, private messages
+      #signal-desktop # Signal app, private messages
+      #protonvpn-gui
+      #proton-pass
+      #proton-authenticator
+      #ticktick # Privacy friendly todo app
 
       # Dev
       go
@@ -80,9 +96,12 @@
       air
       duckdb
       inputs.eleakxir.packages.${stdenv.hostPlatform.system}.leak-utils
-      caido
+      #caido
       wireshark
       nuclei
+      jdk21
+      pnpm
+      yarn
 
       # Utils
       zip
@@ -92,6 +111,13 @@
       pfetch
       btop
       fastfetch
+      mangohud 
+      libreoffice
+      super-slicer-beta
+      anydesk
+      qbittorrent
+      openrgb-with-all-plugins
+    
 
       # Just cool
       peaclock
@@ -99,16 +125,21 @@
       pipes
       cmatrix
 
+
       # Backup
       vscode
     ];
 
     # Import my profile picture, used by the hyprpanel dashboard
-    file.".face.icon" = {source = ./profile_picture.png;};
+    file.".face.icon" = {
+      source = ./profile_picture.png;
+      force = true;
+    };
 
     # Don't touch this
     stateVersion = "24.05";
   };
 
+  
   programs.home-manager.enable = true;
 }

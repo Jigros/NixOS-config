@@ -12,14 +12,13 @@
   inactive-opacity = config.theme.inactive-opacity;
   rounding = config.theme.rounding;
   blur = config.theme.blur;
-  keyboardLayout = config.var.keyboardLayout;
+  # keyboardLayout = config.var.keyboardLayout;
   background = "rgb(" + config.lib.stylix.colors.base00 + ")";
 in {
   imports = [
     ./animations.nix
     ./bindings.nix
     ./polkitagent.nix
-    ./keyboard-backlight.nix # CHANGEME: This is for omen laptop only
   ];
 
   home.packages = with pkgs; [
@@ -38,11 +37,13 @@ in {
     gnome-themes-extra
     libva
     dconf
+    hyprsunset
     wayland-utils
     wayland-protocols
     glib
     direnv
     meson
+    hyprsunset
   ];
 
   wayland.windowManager.hyprland = {
@@ -64,13 +65,12 @@ in {
       exec-once = [
         "dbus-update-activation-environment --systemd --all &"
         "systemctl --user enable --now hyprpaper.service &"
+        "hyprsunset --temperature 3000 --gamma 1"
       ];
 
       monitor = [
-        "eDP-2,highres,0x0,1" # My internal laptop screen
-        "desc:AOC U34G2G1 0x00000E06,3440x1440@99.98,auto,1" # My external monitor
-        "desc:United Microelectr Corporation UMC SHARP,3840x2160,auto,2" # TV
-        ",prefered,auto,1" # default
+        "DP-3,1920x1080@60.00,0x0,1"
+	"DP-2,preferred,-1920x0,1"
       ];
 
       env = [
@@ -95,12 +95,12 @@ in {
         "WLR_NO_HARDWARE_CURSORS,1"
         "SDL_VIDEODRIVER,wayland"
         "CLUTTER_BACKEND,wayland"
-        "AQ_DRM_DEVICES,/dev/dri/card2:/dev/dri/card1" # CHANGEME: Related to the GPU
+        #"AQ_DRM_DEVICES,/dev/dri/card2:/dev/dri/card1" # CHANGEME: Related to the GPU
       ];
 
       cursor = {
         no_hardware_cursors = true;
-        default_monitor = "eDP-2";
+        default_monitor = "DP-2";
       };
 
       general = {
@@ -147,11 +147,13 @@ in {
       };
 
       input = {
-        kb_layout = keyboardLayout;
+        kb_layout = "us,ru";
 
-        kb_options = "caps:escape";
+        kb_options = "grp:alt_shift_toggle";
         follow_mouse = 1;
-        sensitivity = 0.5;
+        sensitivity = 0;
+	#accel_profile = flat;
+	force_no_accel = true;
         repeat_delay = 300;
         repeat_rate = 50;
         numlock_by_default = true;
@@ -164,3 +166,5 @@ in {
     };
   };
 }
+
+

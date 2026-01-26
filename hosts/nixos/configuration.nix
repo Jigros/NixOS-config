@@ -1,4 +1,4 @@
-{config, ...}: {
+{config, pkgs, ...}: {
   imports = [
     # Mostly system related configuration
     ../../nixos/nvidia.nix # CHANGEME: Remove this line if you don't have an Nvidia GPU
@@ -22,8 +22,26 @@
     ./variables.nix
   ];
 
+  stylix.enableReleaseChecks = false;
+
   home-manager.users."${config.var.username}" = import ./home.nix;
 
+  # Add this block to enable OpenRGB udev rules
+  services.udev.packages = [ pkgs.openrgb ];
+
+  # MySQL service (use mariadb as the package)
+  services.mysql = {
+    enable = true;
+    package = pkgs.mariadb;
+    # Optional: set a root password (not recommended for production)
+    # initialRootPassword = "yourpassword";
+  };
+
+  programs.throne = {
+    enable = true;
+    tunMode.enable = true;
+    # tunMode.setuid = true; # если хочешь suid
+  };
   # Don't touch this
   system.stateVersion = "24.05";
 }

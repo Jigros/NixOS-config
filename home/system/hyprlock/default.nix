@@ -5,7 +5,7 @@ let
   font = config.stylix.fonts.serif.name;
 in {
   programs.hyprlock = {
-    enable = true;
+    enable = false;
     settings = {
       general = {
         ignore_empty_input = true;

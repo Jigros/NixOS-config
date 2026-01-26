@@ -50,6 +50,7 @@ in {
       enable = true;
       resyncTimer = "10m";
     };
+    flatpak.enable = true;
   };
   console.keyMap = keyboardLayout;
 
@@ -59,7 +60,7 @@ in {
     EDITOR = "nvim";
     TERMINAL = "kitty";
     TERM = "kitty";
-    BROWSER = "zen-beta";
+    BROWSER = "brave";
   };
 
   services.libinput.enable = true;
@@ -102,6 +103,7 @@ in {
     vim
     go
     comma
+    glibc
   ];
 
   xdg.portal = {
@@ -114,6 +116,8 @@ in {
 
     extraPortals = [pkgs.xdg-desktop-portal-gtk];
   };
+  
+  
 
   security = {
     # allow wayland lockers to unlock the screen
