@@ -59,9 +59,7 @@ in {
       ManagedBookmarks = toChromium bookmarkList;
 
       ExtensionInstallForcelist = [
-        "dbepggeogbaibhgnhhndojpepiihcmeb" # Vimiu
-        "gcknhkkoolaabfmlnjonogaaifnjlfnp" # FoxyProxy
-        "ghmbeldphafepmbegfdlkpapadhbakde" # Proton Pass
+        "nngceckbaplhbijlkkkjpmoihodkdojp" # Bitwarden
         "mdjildafknihdffpkfmmpnpoiajfjnjd" # Consent-O-Matic
         "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # Privacy Badger
       ];

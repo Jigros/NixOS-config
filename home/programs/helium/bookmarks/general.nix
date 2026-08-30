@@ -1,11 +1,7 @@
 [
   {
-    name = "Proton Mail";
-    url = "https://mail.proton.me";
-  }
-  {
-    name = "Proton Drive";
-    url = "https://drive.proton.me";
+    name = "Bitwarden";
+    url = "https://vault.bitwarden.com";
   }
   {
     name = "Github";

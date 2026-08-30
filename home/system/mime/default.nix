@@ -7,11 +7,8 @@
 with lib; let
   defaultApps = {
     # check desktop files here: `ls $(echo $XDG_DATA_DIRS| sed "s/:/ /g")`
-    text = [
-      # "org.gnome.TextEditor.desktop"
-      "nvim-ghostty.desktop"
-    ];
-    code = ["nvim-ghostty.desktop"];
+    text = ["code.desktop"];
+    code = ["code.desktop"];
     image = ["imv-dir.desktop"];
     audio = ["mpv.desktop"];
     video = ["mpv.desktop"];
@@ -20,7 +17,7 @@ with lib; let
     pdf = ["zathura.desktop"];
     terminal = ["ghostty.desktop"];
     archive = ["xarchiver.desktop"];
-    browser = ["helium.desktop"];
+    browser = ["brave-browser.desktop"];
   };
 
   mimeMap = {

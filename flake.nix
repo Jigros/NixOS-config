@@ -18,6 +18,14 @@
     usbguard-tui.url = "github:anotherhadi/usbguard-tui";
     jwt-tui.url = "github:anotherhadi/jwt-tui";
 
+    creamlinux-installer = {
+      url = "github:Novattz/creamlinux-installer";
+      flake = false;
+    };
+    nixcord = {
+      url = "github:FlameFlag/nixcord";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -75,9 +83,7 @@
       {
         formatter.${system} = pkgs.alejandra;
         nixosConfigurations = {
-          h-laptop = import ./hosts/laptop/flake.nix args;
-          h-work = import ./hosts/work/flake.nix args;
-          jack = import ./hosts/server/flake.nix args;
+          nixos = import ./hosts/nixos/flake.nix args;
         };
       }
     ];

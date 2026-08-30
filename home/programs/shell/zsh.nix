@@ -77,6 +77,9 @@ in {
 
       nix-shell = "nix-shell --command zsh";
 
+      # Fix for ssh with ghostty
+      ssh = "TERM=xterm-256color ssh";
+
       # git
       g = "lazygit";
       ga = "git add";

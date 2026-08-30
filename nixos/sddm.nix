@@ -40,7 +40,19 @@
     };
   };
 in {
+  services.xserver.displayManager.setupCommands = ''
+    ${pkgs.xrandr}/bin/xrandr \
+      --output DP-3 --primary --mode 1920x1080 --rate 143.99 --pos 0x0 \
+      --output DP-1 --auto --left-of DP-3
+  '';
+
   services.displayManager = {
+    autoLogin = {
+      enable = true;
+      user = config.var.username;
+    };
+    defaultSession = "hyprland";
+
     sddm = {
       package = pkgs.kdePackages.sddm;
       extraPackages = [sddm-astronaut];

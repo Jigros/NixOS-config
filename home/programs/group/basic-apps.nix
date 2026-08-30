@@ -1,19 +1,51 @@
-{pkgs-stable, ...}: {
-  home.packages = with pkgs-stable; [
+{
+  inputs,
+  pkgs,
+  ...
+}: let
+  creamlinux =
+    pkgs.symlinkJoin {
+      name = "creamlinux-nvidia-wrapper";
+      paths = [(import inputs.creamlinux-installer {inherit pkgs;})];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram "$out/bin/creamlinux" \
+          --set WEBKIT_DISABLE_DMABUF_RENDERER 1
+      '';
+    };
+
+  prismlauncher =
+    pkgs.symlinkJoin {
+      name = "prismlauncher-gsettings-schema-dir";
+      paths = [pkgs.prismlauncher];
+      nativeBuildInputs = [pkgs.makeWrapper];
+      postBuild = ''
+        wrapProgram "$out/bin/prismlauncher" \
+          --set GSETTINGS_SCHEMA_DIR "${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}/glib-2.0/schemas" \
+          --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath [
+            pkgs.dbus
+          ]}"
+      '';
+    };
+in {
+  home.packages = with pkgs; [
     vlc # Video player
-    obsidian # Note taking app
     textpieces # Manipulate texts
     resources # Ressource monitor
     gnome-clocks # Clocks app
     gnome-text-editor # Basic graphic text editor
-    ticktick # Todo app
-    pinta # Image editor
-    switcheroo # Convert images between different formats
-    onlyoffice-desktopeditors # Office suite
-    blanket # Listen to different sounds
 
-    signal-desktop # Messaging app
-    librewolf # Backup browser
+    ayugram-desktop
+    steam
+    creamlinux
+    prismlauncher
+    vscode
+    openrgb-with-all-plugins
+    libreoffice
+    qbittorrent
+
+    antigravity-ide
+    jetbrains.idea
 
     # I love TUIs
     caligula # User-friendly, lightweight TUI for disk imaging (ISO, USB BOOT)

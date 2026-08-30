@@ -34,8 +34,10 @@
   };
 
   heliumFlags = [
-    "--ozone-platform=wayland"
-    "--enable-features=UseOzonePlatform,VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization"
+    # Native Wayland can freeze Helium/Chromium on very large paste operations.
+    # XWayland keeps the browser usable while preserving the same profile/setup.
+    "--ozone-platform=x11"
+    "--enable-features=VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization"
     "--disable-features=UseChromeOSDirectVideoDecoder,WaylandWpColorManagerV1"
     "--enable-accelerated-video-decode"
     "--enable-gpu-rasterization"
@@ -43,6 +45,30 @@
     "--no-default-browser-check"
     "--show-avatar-button=never"
   ];
+
+  fontconfigFile = pkgs.makeFontsConf {
+    fontDirectories = with pkgs; [
+      roboto
+      work-sans
+      comic-neue
+      source-sans
+      comfortaa
+      inter
+      lato
+      lexend
+      jost
+      dejavu_fonts
+      noto-fonts
+      noto-fonts-cjk-sans
+      noto-fonts-color-emoji
+      nerd-fonts.fira-code
+      nerd-fonts.meslo-lg
+      openmoji-color
+      twemoji-color-font
+    ];
+  };
+
+  flagArgs = lib.concatMapStrings (flag: " --add-flags ${lib.escapeShellArg flag}") heliumFlags;
 
   originalPkg = (inputs.helium-browser.packages.${pkgs.stdenv.hostPlatform.system}.helium).override {
     flags = heliumFlags;
@@ -90,8 +116,10 @@
     paths = [originalPkg];
     nativeBuildInputs = [pkgs.makeWrapper];
     postBuild = ''
-      wrapProgram $out/bin/helium \
-        --run ${lib.escapeShellArg (toString patchScript)}
+      rm -f $out/bin/helium
+      makeWrapper ${originalPkg}/bin/.helium-wrapped $out/bin/helium \
+        --run ${lib.escapeShellArg (toString patchScript)} \
+        --set FONTCONFIG_FILE ${fontconfigFile}${flagArgs}
     '';
   };
 

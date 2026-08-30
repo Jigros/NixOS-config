@@ -53,12 +53,12 @@ in {
             {
               key = "c";
               desc = "Proton Calendar";
-              cmd = "${config.programs.helium.package}/bin/helium 'https://calendar.proton.me/'";
+              cmd = "${pkgs.brave}/bin/brave 'https://calendar.proton.me/'";
             }
             {
               key = "m";
               desc = "Proton Mail";
-              cmd = "${config.programs.helium.package}/bin/helium 'https://mail.proton.me/'";
+              cmd = "${pkgs.brave}/bin/brave 'https://mail.proton.me/'";
             }
             {
               key = "o";
@@ -77,18 +77,18 @@ in {
             }
             {
               key = "b";
-              desc = "Helium";
-              cmd = "${config.programs.helium.package}/bin/helium";
+              desc = "Brave";
+              cmd = "${pkgs.brave}/bin/brave";
             }
             {
               key = "i";
-              desc = "Helium (Incognito)";
-              cmd = "${config.programs.helium.package}/bin/helium --incognito";
+              desc = "Brave (Incognito)";
+              cmd = "${pkgs.brave}/bin/brave --incognito";
             }
           ])
         )
 
-        "$mod,B, exec, uwsm app -- ${config.programs.helium.package}/bin/helium" # Browser
+        "$mod,B, exec, uwsm app -- ${pkgs.brave}/bin/brave" # Browser
 
         # Power
         "$mod, X, global, caelestia:session" # Powermenu

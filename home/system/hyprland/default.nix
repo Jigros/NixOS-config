@@ -19,7 +19,6 @@ in {
     ./animations.nix
     ./bindings.nix
     ./polkitagent.nix
-    ./keyboard-backlight.nix # CHANGEME: This is for omen laptop only
   ];
 
   home.packages = with pkgs; [
@@ -60,6 +59,8 @@ in {
     settings = {
       exec-once = [
         "dbus-update-activation-environment --systemd --all &"
+        "${pkgs.bash}/bin/bash -lc 'sleep 3; ${pkgs.xrandr}/bin/xrandr --output DP-3 --primary --mode 1920x1080 --rate 143.99 --pos 0x0 --output DP-1 --auto --left-of DP-3 || true' &"
+        "hyprsunset -t 4500"
       ];
 
       monitor = [
@@ -84,7 +85,7 @@ in {
 
       cursor = {
         no_hardware_cursors = true;
-        default_monitor = "eDP-2";
+        default_monitor = "DP-3";
       };
 
       general = {
@@ -124,8 +125,6 @@ in {
 
       windowrule = [
         "match:class .*, suppress_event maximize"
-        "match:class helium, suppress_event fullscreen"
-        "match:class helium, sync_fullscreen false"
 
         "match:class proton-authenticator, float on"
         "match:class proton-authenticator, center on"
@@ -150,12 +149,13 @@ in {
       input = {
         kb_layout = keyboardLayout;
 
-        kb_options = "caps:escape";
+        kb_options = "caps:escape,grp:alt_shift_toggle";
         follow_mouse = 1;
-        sensitivity = 0.5;
+        sensitivity = 2;
         repeat_delay = 300;
         repeat_rate = 50;
         numlock_by_default = true;
+        force_no_accel = true;
 
         touchpad = {
           natural_scroll = true;
