@@ -15,41 +15,26 @@
     ../../nixos/hyprland.nix
     ../../nixos/steam.nix
     ../../nixos/kernel-hardening.nix
+    ../../nixos/throne.nix
+    ../../nixos/openrgb.nix
+    ../../nixos/docker.nix
+    ../../nixos/printing.nix
     ../../home/programs/gui/helium/system.nix # I hate browser's configuration..
 
-    # CHANGEME: You should probably remove those things:
+    # Optional host modules
     #./wireguard.nix
     #./persistence.nix # impermanence: what to keep once "/" is wiped on boot
     #./usbguard.nix
     #./disko.nix
     #./secrets
 
-    # You should let those lines as is
     ./hardware-configuration.nix
     ./variables.nix
   ];
 
-  programs.throne = {
-    enable = true;
-    tunMode.enable = true;
-  };
-
-  services.printing = {
-  enable = true;
-  browsed.enable = false;
-};
-
-services.avahi = {
-  enable = true;
-  nssmdns4 = true;
-  openFirewall = true;
-};
-
   networking.firewall.enable = false;
-  
-  home-manager.users."${config.var.username}" = import ./home.nix;
 
-  #users.users.${config.var.username}.hashedPassword = "$y$j9T$A7gH534UczuBxulj9IfEu1$ImRy3lpYpemRWNVIkA7efKPWXneFiqhZnEF1aMkWcD8"; # CHANGEME: This is my password
+  home-manager.users."${config.var.username}" = import ./home.nix;
 
   # Don't touch this
   system.stateVersion = "26.05";
