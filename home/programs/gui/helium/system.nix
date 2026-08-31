@@ -52,11 +52,9 @@ in {
       BookmarkBarEnabled = false;
       ManagedBookmarks = toChromium bookmarkList;
 
+      # Same extension set that was used in the old Brave configuration.
       ExtensionInstallForcelist = [
-        "nngceckbaplhbijlkkkjpmoihodkdojp" # Bitwarden (restored from old Brave)
-        "dbepggeogbaibhgnhhndojpepiihcmeb" # Vimiu
-        "gcknhkkoolaabfmlnjonogaaifnjlfnp" # FoxyProxy
-        "ghmbeldphafepmbegfdlkpapadhbakde" # Proton Pass
+        "nngceckbaplhbijlkkkjpmoihodkdojp" # Bitwarden
         "mdjildafknihdffpkfmmpnpoiajfjnjd" # Consent-O-Matic
         "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # Privacy Badger
       ];
