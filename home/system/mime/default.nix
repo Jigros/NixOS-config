@@ -10,11 +10,12 @@
     image = ["imv-dir.desktop"];
     audio = ["vlc.desktop"];
     video = ["vlc.desktop"];
-    directory = ["elio.desktop"];
+    directory = ["thunar.desktop"];
     office = ["onlyoffice-desktopeditors.desktop"];
     pdf = ["onlyoffice-desktopeditors.desktop"];
-    archive = ["elio.desktop"];
+    archive = ["thunar.desktop"];
     browser = ["helium.desktop"];
+    terminal = ["com.mitchellh.ghostty.desktop"];
   };
 
   mimeMap = {
@@ -112,6 +113,7 @@
       "x-scheme-handler/https"
       "x-scheme-handler/ftp"
     ];
+    terminal = ["x-scheme-handler/terminal"];
   };
 
   nvim-ghostty = pkgs.makeDesktopItem {
