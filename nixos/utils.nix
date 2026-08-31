@@ -127,7 +127,7 @@ in {
         # Pick files / choose download paths with elio instead of the GTK dialog.
         # Key MUST use the "impl" interface name, else xdg-desktop-portal
         # ignores it and falls back to the default (gtk). See portals.conf(5).
-        "org.freedesktop.impl.portal.FileChooser" = ["termfilechooser"];
+        "org.freedesktop.impl.portal.FileChooser" = ["gtk"];
       };
     };
 

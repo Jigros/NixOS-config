@@ -19,6 +19,8 @@
         jq
         nix-prefetch-github
         rsync
+	brave
+	vscode
       ]);
 
     persistence."/persist" = lib.mkIf (config.var.impermanenceEnabled or false) {

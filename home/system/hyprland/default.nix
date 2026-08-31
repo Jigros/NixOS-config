@@ -60,6 +60,7 @@ in {
     portalPackage = null;
 
     settings = {
+
       monitor = [
         ",preferred,auto,1" # default
       ];
@@ -86,6 +87,7 @@ in {
 
       cursor = {
         no_hardware_cursors = true;
+        default_monitor = "DP-3";
       };
 
       general = {
@@ -159,12 +161,13 @@ in {
       input = {
         kb_layout = keyboardLayout;
 
-        kb_options = "caps:escape";
+        kb_options = "caps:escape,grp:alt_shift_toggle";
         follow_mouse = 1;
-        sensitivity = 0.5;
+        sensitivity = 2;
         repeat_delay = 300;
         repeat_rate = 50;
         numlock_by_default = true;
+        force_no_accel = true;
 
         touchpad = {
           natural_scroll = true;
