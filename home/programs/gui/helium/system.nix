@@ -54,14 +54,13 @@ in {
       BookmarkBarEnabled = false;
       ManagedBookmarks = toChromium bookmarkList;
 
-      # Helium currently has an upstream bug where ExtensionInstallForcelist
-      # is ignored on Linux. Use ExtensionSettings instead.
       ExtensionSettings = {
         "*" = {
           installation_mode = "allowed";
         };
 
-        "nngceckbaplhbijlkkkjpmoihodkdojp" = {
+        # Bitwarden Password Manager (official Chrome Web Store ID).
+        "nngceckbapebfimnlniiiahkandclblb" = {
           installation_mode = "force_installed";
           update_url = webStoreUpdate;
         };
