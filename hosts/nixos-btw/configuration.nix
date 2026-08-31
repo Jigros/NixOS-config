@@ -19,6 +19,7 @@
     ../../nixos/openrgb.nix
     ../../nixos/docker.nix
     ../../nixos/printing.nix
+    ../../nixos/r8168.nix
     ../../home/programs/gui/helium/system.nix # I hate browser's configuration..
 
     # Optional host modules
