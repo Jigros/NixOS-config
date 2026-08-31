@@ -72,7 +72,9 @@ in {
     power-profiles-daemon.enable = true;
     udisks2.enable = true;
   };
-  console.keyMap = keyboardLayout;
+
+  # Linux console accepts one keymap, unlike XKB/Hyprland's comma-separated layouts.
+  console.keyMap = "us";
 
   environment = {
     variables = {
@@ -124,9 +126,6 @@ in {
           "gtk"
           "hyprland"
         ];
-        # Pick files / choose download paths with elio instead of the GTK dialog.
-        # Key MUST use the "impl" interface name, else xdg-desktop-portal
-        # ignores it and falls back to the default (gtk). See portals.conf(5).
         "org.freedesktop.impl.portal.FileChooser" = ["gtk"];
       };
     };
