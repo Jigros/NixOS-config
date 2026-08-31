@@ -13,7 +13,8 @@
     username = "the_cet";
     configDirectory = "/home/" + config.var.username + "/.config/nixos"; # The path of the nixos configuration directory
 
-    keyboardLayout = "us";
+    # English + Russian, switch with Alt+Shift in Hyprland.
+    keyboardLayout = "us,ru";
 
     timeZone = "Europe/Paris";
     defaultLocale = "en_US.UTF-8";
