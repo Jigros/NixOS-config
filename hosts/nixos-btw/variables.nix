@@ -16,13 +16,13 @@
     # English + Russian, switch with Alt+Shift in Hyprland.
     keyboardLayout = "us,ru";
 
-    timeZone = "Europe/Paris";
+    timeZone = "Asia/Vladivostok";
     defaultLocale = "en_US.UTF-8";
     extraLocale = "ru_RU.UTF-8";
 
     git = {
-      username = "Hadi";
-      email = "112569860+anotherhadi@users.noreply.github.com";
+      username = "Jigros";
+      email = "209211492+Jigros@users.noreply.github.com";
     };
 
     autoUpgrade = false;
