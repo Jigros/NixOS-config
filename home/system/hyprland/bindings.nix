@@ -36,17 +36,23 @@
     exec ${pkgs.tofi}/bin/tofi-drun
   '';
 
-  # grim captures the compositor output at native resolution; swappy then edits
-  # the original PNG instead of a scaled preview stream.
+  # Write Grim's original PNG to disk first, then open that exact file in
+  # Swappy. This avoids passing the screenshot through a raw/stdin pipeline.
   screenshotRegion = pkgs.writeShellScriptBin "screenshot-region-edit" ''
+    mkdir -p "$HOME/Pictures/Screenshots"
     geometry="$(${pkgs.slurp}/bin/slurp)" || exit 0
-    ${pkgs.grim}/bin/grim -g "$geometry" - | ${pkgs.swappy}/bin/swappy -f -
+    file="$HOME/Pictures/Screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png"
+    ${pkgs.grim}/bin/grim -g "$geometry" "$file" || exit 1
+    exec ${pkgs.swappy}/bin/swappy -f "$file"
   '';
 
   screenshotOutput = pkgs.writeShellScriptBin "screenshot-output-edit" ''
+    mkdir -p "$HOME/Pictures/Screenshots"
     monitor="$(${pkgs.hyprland}/bin/hyprctl activeworkspace -j | ${pkgs.jq}/bin/jq -r '.monitor')"
     [ -n "$monitor" ] && [ "$monitor" != "null" ] || exit 1
-    ${pkgs.grim}/bin/grim -o "$monitor" - | ${pkgs.swappy}/bin/swappy -f -
+    file="$HOME/Pictures/Screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png"
+    ${pkgs.grim}/bin/grim -o "$monitor" "$file" || exit 1
+    exec ${pkgs.swappy}/bin/swappy -f "$file"
   '';
 
   recordingToggle = pkgs.writeShellScriptBin "recording-toggle" ''
