@@ -27,6 +27,14 @@ in {
       pull.rebase = "true";
       push.autoSetupRemote = true;
       color.ui = "1";
+
+      credential."https://github.com" = {
+        helper = "!gh auth git-credential";
+      };
+      credential."https://gist.github.com" = {
+        helper = "!gh auth git-credential";
+      };
+
       alias = {
         co = "checkout";
         fuck = "commit --amend -m";
