@@ -54,33 +54,14 @@ in {
       BookmarkBarEnabled = false;
       ManagedBookmarks = toChromium bookmarkList;
 
-      ExtensionSettings = {
-        "*" = {
-          installation_mode = "allowed";
-        };
-
-        # Bitwarden Password Manager (official Chrome Web Store ID).
-        "nngceckbapebfimnlniiiahkandclblb" = {
-          installation_mode = "force_installed";
-          update_url = webStoreUpdate;
-        };
-        "mnjggcdmjocbbbhaepdhchncahnbgone" = {
-          installation_mode = "force_installed";
-          update_url = webStoreUpdate;
-        };
-        "cjpalhdlnbpafiamejdnhcphjbkeiagm" = {
-          installation_mode = "force_installed";
-          update_url = webStoreUpdate;
-        };
-        "mdjildafknihdffpkfmmpnpoiajfjnjd" = {
-          installation_mode = "force_installed";
-          update_url = webStoreUpdate;
-        };
-        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" = {
-          installation_mode = "force_installed";
-          update_url = webStoreUpdate;
-        };
-      };
+      # Standard Chromium policy: force-install extensions from Chrome Web Store.
+      ExtensionInstallForcelist = [
+        "nngceckbapebfimnlniiiahkandclblb;${webStoreUpdate}" # Bitwarden
+        "mnjggcdmjocbbbhaepdhchncahnbgone;${webStoreUpdate}" # SponsorBlock
+        "cjpalhdlnbpafiamejdnhcphjbkeiagm;${webStoreUpdate}" # uBlock Origin
+        "mdjildafknihdffpkfmmpnpoiajfjnjd;${webStoreUpdate}" # Consent-O-Matic
+        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp;${webStoreUpdate}" # Privacy Badger
+      ];
     };
   };
 }
