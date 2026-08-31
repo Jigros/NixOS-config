@@ -93,7 +93,8 @@ in {
           ])
         )
         "$mod,RETURN, exec, ${pkgs.ghostty}/bin/ghostty +new-window"
-        "$mod,E, exec, ${pkgs.ghostty}/bin/ghostty +new-window -e elio"
+        "$mod,E, exec, ${pkgs.thunar}/bin/thunar"
+        "$mod,V, exec, clipboard-history"
         "$mod, SPACE, exec, ${lib.getExe tofi-drun-toggle}"
         "$mod, N, exec, ${pkgs.swaynotificationcenter}/bin/swaync-client -t"
         "$mod,Q, killactive,"
