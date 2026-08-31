@@ -17,7 +17,7 @@
       })
     items;
 
-  chromeWebStore = "https://clients2.google.com/service/update2/crx";
+  webStoreUpdate = "https://clients2.google.com/service/update2/crx";
 in {
   stylix.targets.chromium.enable = false;
 
@@ -54,15 +54,34 @@ in {
       BookmarkBarEnabled = false;
       ManagedBookmarks = toChromium bookmarkList;
 
-      # Explicit Chrome Web Store update URL is required reliably by Chromium's
-      # force-install policy on Linux/Chromium derivatives.
-      ExtensionInstallForcelist = [
-        "nngceckbaplhbijlkkkjpmoihodkdojp;${chromeWebStore}" # Bitwarden
-        "mnjggcdmjocbbbhaepdhchncahnbgone;${chromeWebStore}" # SponsorBlock
-        "cjpalhdlnbpafiamejdnhcphjbkeiagm;${chromeWebStore}" # uBlock Origin
-        "mdjildafknihdffpkfmmpnpoiajfjnjd;${chromeWebStore}" # Consent-O-Matic
-        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp;${chromeWebStore}" # Privacy Badger
-      ];
+      # Helium currently has an upstream bug where ExtensionInstallForcelist
+      # is ignored on Linux. Use ExtensionSettings instead.
+      ExtensionSettings = {
+        "*" = {
+          installation_mode = "allowed";
+        };
+
+        "nngceckbaplhbijlkkkjpmoihodkdojp" = {
+          installation_mode = "force_installed";
+          update_url = webStoreUpdate;
+        };
+        "mnjggcdmjocbbbhaepdhchncahnbgone" = {
+          installation_mode = "force_installed";
+          update_url = webStoreUpdate;
+        };
+        "cjpalhdlnbpafiamejdnhcphjbkeiagm" = {
+          installation_mode = "force_installed";
+          update_url = webStoreUpdate;
+        };
+        "mdjildafknihdffpkfmmpnpoiajfjnjd" = {
+          installation_mode = "force_installed";
+          update_url = webStoreUpdate;
+        };
+        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" = {
+          installation_mode = "force_installed";
+          update_url = webStoreUpdate;
+        };
+      };
     };
   };
 }
