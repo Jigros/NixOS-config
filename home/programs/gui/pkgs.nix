@@ -13,6 +13,11 @@
     signal-desktop # Messaging app
     ticktick # Todo app
 
+    # Restored personal applications
+    ayugram-desktop
+    prismlauncher
+    qbittorrent
+
     # Backup
     thunar
     gnome-text-editor
