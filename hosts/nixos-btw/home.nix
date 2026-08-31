@@ -6,7 +6,6 @@
 }: {
   imports = [
     # Programs
-
     ## GUI
     #../../home/programs/gui/proton
     ../../home/programs/gui/helium
@@ -19,7 +18,7 @@
     ../../home/programs/tui/shell
     ../../home/programs/tui/git
     ../../home/programs/tui/git/lazygit.nix
-    #../../home/programs/tui/git/signing.nix # CHANGEME: Change the key or remove this file
+    #../../home/programs/tui/git/signing.nix
     ../../home/programs/tui/nixy
     ../../home/programs/tui/nix-utils
     ../../home/programs/tui/spotatui
@@ -32,7 +31,7 @@
     ../../home/programs/group/cybersecurity.nix
     ../../home/programs/group/dev.nix
 
-    # System (Desktop environment like stuff)
+    # Desktop
     ../../home/system/hyprlock
     ../../home/system/hyprland
     ../../home/system/waybar
@@ -43,8 +42,9 @@
     #../../home/system/termfilechooser
     ../../home/system/clipboard
     ../../home/system/hypridle
+    ../../home/system/nightlight
 
-    ./variables.nix # Mostly user-specific configuration
+    ./variables.nix
   ];
 
   home = {
@@ -65,29 +65,21 @@
         "Pictures"
         "Videos"
       ];
-
       files = [
         ".ssh/known_hosts"
         ".config/sops/age/keys.txt"
       ];
     };
 
-    sessionVariables = {
-      AQ_DRM_DEVICES = "/dev/dri/card2:/dev/dri/card1"; # CHANGEME: Related to the GPU
-    };
-
+    sessionVariables.AQ_DRM_DEVICES = "/dev/dri/card2:/dev/dri/card1";
     stateVersion = "26.05";
   };
 
-  wayland.windowManager.hyprland.settings = {
-    monitor = [
-      "DP-1,preferred,0x0,1"
-      "DP-3,1920x1080@143.99Hz,1920x0,1"
-    ];
-
-    # Restore the old default blue-light reduction.
-    exec-once = ["hyprsunset -t 4500"];
-  };
+  # DP-1 is physically left; DP-3 is the 1080p 144 Hz monitor on the right.
+  wayland.windowManager.hyprland.settings.monitor = [
+    "DP-1,preferred,0x0,1"
+    "DP-3,1920x1080@143.99Hz,1920x0,1"
+  ];
 
   programs = {
     home-manager.enable = true;
