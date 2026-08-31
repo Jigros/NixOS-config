@@ -78,7 +78,7 @@
   # DP-1 is physically left; DP-3 is the 1080p 144 Hz monitor on the right.
   wayland.windowManager.hyprland.settings.monitor = [
     "DP-1,preferred,0x0,1"
-    "DP-3,1920x1080@143.99Hz,1920x0,1"
+    "DP-3,1920x1080@143.99Hz,auto-right,1"
   ];
 
   programs = {
