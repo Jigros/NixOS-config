@@ -9,6 +9,7 @@
     ## GUI
     #../../home/programs/gui/proton
     ../../home/programs/gui/helium
+    ../../home/programs/gui/discord
     ../../home/programs/gui/pkgs.nix
 
     ## TUI
