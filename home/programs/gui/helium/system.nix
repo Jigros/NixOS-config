@@ -26,7 +26,6 @@ in {
       BrowserSignin = 0;
       SyncDisabled = true;
       SigninAllowed = false;
-
       PasswordManagerEnabled = false;
       AutofillAddressEnabled = false;
       AutofillCreditCardEnabled = false;
@@ -37,28 +36,24 @@ in {
       DefaultGeolocationSetting = 2;
       DefaultNotificationsSetting = 2;
       DefaultPopupsSetting = 2;
-
       DefaultBrowserSettingEnabled = false;
       DeveloperToolsAvailability = 1;
-
       DnsOverHttpsMode = "automatic";
       DnsOverHttpsTemplates = "https://dns.quad9.net/dns-query";
-
       DefaultSearchProviderEnabled = true;
       DefaultSearchProviderName = "Startpage";
       DefaultSearchProviderSearchURL = "https://www.startpage.com/do/search?q={searchTerms}";
       DefaultSearchProviderSuggestURL = "https://www.startpage.com/do/suggest?q={searchTerms}";
-
       NewTabPageLocation = "http://127.0.0.1:8888";
       HomepageIsNewTabPage = false;
       HomepageLocation = "http://127.0.0.1:8888";
       ShowHomeButton = false;
       RestoreOnStartup = 4;
-
       BookmarkBarEnabled = false;
       ManagedBookmarks = toChromium bookmarkList;
 
       ExtensionInstallForcelist = [
+        "nngceckbaplhbijlkkkjpmoihodkdojp" # Bitwarden (restored from old Brave)
         "dbepggeogbaibhgnhhndojpepiihcmeb" # Vimiu
         "gcknhkkoolaabfmlnjonogaaifnjlfnp" # FoxyProxy
         "ghmbeldphafepmbegfdlkpapadhbakde" # Proton Pass
