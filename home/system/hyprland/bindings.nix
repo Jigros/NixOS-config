@@ -36,16 +36,17 @@
     exec ${pkgs.tofi}/bin/tofi-drun
   '';
 
+  # grim captures the compositor output at native resolution; swappy then edits
+  # the original PNG instead of a scaled preview stream.
   screenshotRegion = pkgs.writeShellScriptBin "screenshot-region-edit" ''
-    mkdir -p "$HOME/Pictures/Screenshots"
-    file="$HOME/Pictures/Screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png"
-    ${pkgs.hyprshot}/bin/hyprshot -m region --raw | ${pkgs.satty}/bin/satty --filename - --output-filename "$file"
+    geometry="$(${pkgs.slurp}/bin/slurp)" || exit 0
+    ${pkgs.grim}/bin/grim -g "$geometry" - | ${pkgs.swappy}/bin/swappy -f -
   '';
 
   screenshotOutput = pkgs.writeShellScriptBin "screenshot-output-edit" ''
-    mkdir -p "$HOME/Pictures/Screenshots"
-    file="$HOME/Pictures/Screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png"
-    ${pkgs.hyprshot}/bin/hyprshot -m output --raw | ${pkgs.satty}/bin/satty --filename - --output-filename "$file"
+    monitor="$(${pkgs.hyprland}/bin/hyprctl activeworkspace -j | ${pkgs.jq}/bin/jq -r '.monitor')"
+    [ -n "$monitor" ] && [ "$monitor" != "null" ] || exit 1
+    ${pkgs.grim}/bin/grim -o "$monitor" - | ${pkgs.swappy}/bin/swappy -f -
   '';
 
   recordingToggle = pkgs.writeShellScriptBin "recording-toggle" ''
@@ -59,7 +60,21 @@
     ${pkgs.wf-recorder}/bin/wf-recorder -g "$geometry" -f "$file" >/dev/null 2>&1 &
   '';
 in {
-  home.packages = [pkgs.slurp];
+  home.packages = with pkgs; [
+    grim
+    slurp
+    swappy
+  ];
+
+  xdg.configFile."swappy/config".text = ''
+    [Default]
+    save_dir=$HOME/Pictures/Screenshots
+    save_filename_format=screenshot-%Y%m%d-%H%M%S.png
+    show_panel=false
+    line_size=5
+    text_size=20
+    text_font=sans-serif
+  '';
 
   wayland.windowManager.hyprland.settings = {
     "$mod" = "SUPER";
