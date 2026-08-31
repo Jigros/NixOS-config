@@ -1,24 +1,4 @@
-{...}: let
-  bookmarkList =
-    (import ./bookmarks/general.nix)
-    ++ (import ./bookmarks/tools.nix)
-    ++ (import ./bookmarks/entertainment.nix)
-    ++ (import ./bookmarks/infosec.nix)
-    ++ (import ./bookmarks/other.nix)
-    ++ (import ./bookmarks/jack.nix);
-
-  toChromium = items:
-    map (item:
-      if item ? url
-      then {inherit (item) name url;}
-      else {
-        name = item.name;
-        children = toChromium item.bookmarks;
-      })
-    items;
-
-  webStoreUpdate = "https://clients2.google.com/service/update2/crx";
-in {
+{...}: {
   stylix.targets.chromium.enable = false;
 
   programs.helium = {
@@ -42,25 +22,18 @@ in {
       DeveloperToolsAvailability = 1;
       DnsOverHttpsMode = "automatic";
       DnsOverHttpsTemplates = "https://dns.quad9.net/dns-query";
-      DefaultSearchProviderEnabled = true;
-      DefaultSearchProviderName = "Startpage";
-      DefaultSearchProviderSearchURL = "https://www.startpage.com/do/search?q={searchTerms}";
-      DefaultSearchProviderSuggestURL = "https://www.startpage.com/do/suggest?q={searchTerms}";
-      NewTabPageLocation = "http://127.0.0.1:8888";
-      HomepageIsNewTabPage = false;
-      HomepageLocation = "http://127.0.0.1:8888";
       ShowHomeButton = false;
-      RestoreOnStartup = 4;
       BookmarkBarEnabled = false;
-      ManagedBookmarks = toChromium bookmarkList;
 
-      # Standard Chromium policy: force-install extensions from Chrome Web Store.
+      # Helium's module documents plain Chrome Web Store extension IDs here.
+      # Avoid custom update URLs so Helium can manage installation itself.
       ExtensionInstallForcelist = [
-        "nngceckbapebfimnlniiiahkandclblb;${webStoreUpdate}" # Bitwarden
-        "mnjggcdmjocbbbhaepdhchncahnbgone;${webStoreUpdate}" # SponsorBlock
-        "cjpalhdlnbpafiamejdnhcphjbkeiagm;${webStoreUpdate}" # uBlock Origin
-        "mdjildafknihdffpkfmmpnpoiajfjnjd;${webStoreUpdate}" # Consent-O-Matic
-        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp;${webStoreUpdate}" # Privacy Badger
+        "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
+        "mnjggcdmjocbbbhaepdhchncahnbgone" # SponsorBlock
+        "cjpalhdlnbpafiamejdnhcphjbkeiagm" # uBlock Origin
+        "mdjildafknihdffpkfmmpnpoiajfjnjd" # Consent-O-Matic
+        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # Privacy Badger
+        "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
       ];
     };
   };
