@@ -100,7 +100,6 @@
 in {
   imports = [
     inputs.helium-browser.homeModules.default
-    ./bookmarks
   ];
 
   programs.helium = {
