@@ -36,22 +36,19 @@
     exec ${pkgs.tofi}/bin/tofi-drun
   '';
 
-  # Write Grim's original PNG to disk first, then open that exact file in
-  # Swappy. This avoids passing the screenshot through a raw/stdin pipeline.
+  # Match the old Caelestia screenshot workflow: freeze the compositor,
+  # capture the selected area at native resolution, then edit the PNG.
   screenshotRegion = pkgs.writeShellScriptBin "screenshot-region-edit" ''
     mkdir -p "$HOME/Pictures/Screenshots"
-    geometry="$(${pkgs.slurp}/bin/slurp)" || exit 0
     file="$HOME/Pictures/Screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png"
-    ${pkgs.grim}/bin/grim -g "$geometry" "$file" || exit 1
+    ${pkgs.grimblast}/bin/grimblast --freeze save area "$file" || exit 0
     exec ${pkgs.swappy}/bin/swappy -f "$file"
   '';
 
   screenshotOutput = pkgs.writeShellScriptBin "screenshot-output-edit" ''
     mkdir -p "$HOME/Pictures/Screenshots"
-    monitor="$(${pkgs.hyprland}/bin/hyprctl activeworkspace -j | ${pkgs.jq}/bin/jq -r '.monitor')"
-    [ -n "$monitor" ] && [ "$monitor" != "null" ] || exit 1
     file="$HOME/Pictures/Screenshots/screenshot-$(date +%Y%m%d-%H%M%S).png"
-    ${pkgs.grim}/bin/grim -o "$monitor" "$file" || exit 1
+    ${pkgs.grimblast}/bin/grimblast save active "$file" || exit 0
     exec ${pkgs.swappy}/bin/swappy -f "$file"
   '';
 
@@ -67,7 +64,7 @@
   '';
 in {
   home.packages = with pkgs; [
-    grim
+    grimblast
     slurp
     swappy
   ];
