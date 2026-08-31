@@ -53,7 +53,7 @@
 
     persistence."/persist" = lib.mkIf (config.var.impermanenceEnabled or false) {
       directories = [
-        ".config/nixos" # this repo itself (nixy manages it here)
+        ".config/nixos"
         ".local/share"
         ".local/state"
         ".cache"
@@ -76,14 +76,18 @@
       AQ_DRM_DEVICES = "/dev/dri/card2:/dev/dri/card1"; # CHANGEME: Related to the GPU
     };
 
-    # Don't touch this
     stateVersion = "26.05";
   };
 
-  wayland.windowManager.hyprland.settings.monitor = [
-    "DP-3,1920x1080@143.99Hz,0x0,1"
-    "DP-1,preferred,auto-left,1"
-  ];
+  wayland.windowManager.hyprland.settings = {
+    monitor = [
+      "DP-1,preferred,0x0,1"
+      "DP-3,1920x1080@143.99Hz,1920x0,1"
+    ];
+
+    # Restore the old default blue-light reduction.
+    exec-once = ["hyprsunset -t 4500"];
+  };
 
   programs = {
     home-manager.enable = true;
