@@ -16,6 +16,8 @@
         children = toChromium item.bookmarks;
       })
     items;
+
+  chromeWebStore = "https://clients2.google.com/service/update2/crx";
 in {
   stylix.targets.chromium.enable = false;
 
@@ -52,12 +54,14 @@ in {
       BookmarkBarEnabled = false;
       ManagedBookmarks = toChromium bookmarkList;
 
+      # Explicit Chrome Web Store update URL is required reliably by Chromium's
+      # force-install policy on Linux/Chromium derivatives.
       ExtensionInstallForcelist = [
-        "nngceckbaplhbijlkkkjpmoihodkdojp" # Bitwarden
-        "mnjggcdmjocbbbhaepdhchncahnbgone" # SponsorBlock
-        "cjpalhdlnbpafiamejdnhcphjbkeiagm" # uBlock Origin
-        "mdjildafknihdffpkfmmpnpoiajfjnjd" # Consent-O-Matic
-        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp" # Privacy Badger
+        "nngceckbaplhbijlkkkjpmoihodkdojp;${chromeWebStore}" # Bitwarden
+        "mnjggcdmjocbbbhaepdhchncahnbgone;${chromeWebStore}" # SponsorBlock
+        "cjpalhdlnbpafiamejdnhcphjbkeiagm;${chromeWebStore}" # uBlock Origin
+        "mdjildafknihdffpkfmmpnpoiajfjnjd;${chromeWebStore}" # Consent-O-Matic
+        "pkehgijcmpdhfbdbbnkijodmdjhbjlgp;${chromeWebStore}" # Privacy Badger
       ];
     };
   };
