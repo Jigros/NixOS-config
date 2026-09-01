@@ -1,7 +1,13 @@
 {pkgs, ...}: {
   programs.throne = {
     enable = true;
-    tunMode.enable = true;
+    tunMode = {
+      enable = true;
+      # Throne currently still asks for the upstream SUID-style elevation in
+      # some TUN startup paths. Use NixOS' privileged wrapper instead of trying
+      # to modify the read-only Nix store binary.
+      setuid = true;
+    };
   };
 
   # Start Throne automatically with the graphical user session so its tray
