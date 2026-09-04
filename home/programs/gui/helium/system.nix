@@ -4,6 +4,13 @@
   programs.helium = {
     enable = true;
 
+    # Native Chromium/Wayland fullscreen can drop when focus moves to another
+    # monitor. Run Helium through XWayland, matching the older browser setup
+    # more closely and keeping HTML5 fullscreen stable across monitors.
+    flags = [
+      "--ozone-platform=x11"
+    ];
+
     policies = {
       BrowserSignin = 0;
       SyncDisabled = true;
