@@ -97,7 +97,7 @@
             enable = true;
           };
         };
-        extraDiagnostics.enable = true;
+        extraDiagnostics.enable = false;
       };
       ts = {
         enable = true;
