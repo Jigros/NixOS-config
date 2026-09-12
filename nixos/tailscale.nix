@@ -2,9 +2,11 @@
 {
   config,
   inputs,
+  lib,
   ...
 }: let
   username = config.var.username;
+  authKeyFile = config.var.tailscaleAuthKeyFile or null;
 in {
   security.sudo.extraRules = [
     {
@@ -27,6 +29,12 @@ in {
     enable = true;
     package = inputs.nixpkgs-stable.legacyPackages.x86_64-linux.tailscale;
     openFirewall = true;
+    useRoutingFeatures = "client";
+    extraUpFlags = ["--hostname=${config.var.hostname}"];
+  } // lib.optionalAttrs (authKeyFile != null) {
+    # Keep the auth key outside the Nix store. Point this at a file created by
+    # sops-nix/agenix or another secret manager.
+    inherit authKeyFile;
   };
 
   networking.firewall = {
