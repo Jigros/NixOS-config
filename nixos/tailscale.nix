@@ -21,17 +21,8 @@ in {
     };
   };
 
-  # Tailscale integrates best with systemd-resolved on Linux. NixOS wires
-  # /etc/resolv.conf to resolved's local stub when this is enabled.
-  # Route only *.ts.net queries to Tailscale's local Quad100 resolver so
-  # MagicDNS works without hardcoding individual Tailscale IPs.
-  services.resolved = {
-    enable = true;
-    settings.Resolve = {
-      DNS = ["100.100.100.100"];
-      Domains = ["~ts.net"];
-    };
-  };
+  # Let Tailscale integrate with the system resolver normally.
+  services.resolved.enable = true;
 
   services.tailscale = {
     enable = true;
@@ -44,6 +35,12 @@ in {
   } // lib.optionalAttrs hasSecretFile {
     authKeyFile = config.sops.secrets.tailscale-auth-key.path;
   };
+
+  # Temporary fallback for a MagicDNS/Quad100 failure on this client:
+  # tailscaled knows this peer's DNSName, but Quad100 returns no A record.
+  networking.extraHosts = ''
+    100.67.19.53 answer-animal.tail75889f.ts.net
+  '';
 
   networking.firewall = {
     trustedInterfaces = ["tailscale0"];
