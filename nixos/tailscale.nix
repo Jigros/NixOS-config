@@ -21,10 +21,17 @@ in {
     };
   };
 
-  # Tailscale integrates best with systemd-resolved on Linux. This lets
-  # MagicDNS and split-DNS domains such as *.ts.net be handled without
-  # hardcoding Tailscale IPs in /etc/hosts.
-  services.resolved.enable = true;
+  # Tailscale integrates best with systemd-resolved on Linux. NixOS wires
+  # /etc/resolv.conf to resolved's local stub when this is enabled.
+  # Route only *.ts.net queries to Tailscale's local Quad100 resolver so
+  # MagicDNS works without hardcoding individual Tailscale IPs.
+  services.resolved = {
+    enable = true;
+    settings.Resolve = {
+      DNS = ["100.100.100.100"];
+      Domains = ["~ts.net"];
+    };
+  };
 
   services.tailscale = {
     enable = true;
