@@ -6,6 +6,7 @@
     settings = {
       window-padding-x = 10;
       window-padding-y = 10;
+      mouse-scroll-multiplier = "discrete:1";
       keybind = [
         "ctrl+j=goto_split:left"
         "ctrl+i=goto_split:up"
