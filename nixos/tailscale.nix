@@ -21,12 +21,18 @@ in {
     };
   };
 
+  # Tailscale integrates best with systemd-resolved on Linux. This lets
+  # MagicDNS and split-DNS domains such as *.ts.net be handled without
+  # hardcoding Tailscale IPs in /etc/hosts.
+  services.resolved.enable = true;
+
   services.tailscale = {
     enable = true;
     openFirewall = true;
     useRoutingFeatures = "client";
     extraUpFlags = [
       "--hostname=${config.var.hostname}"
+      "--accept-dns=true"
     ];
   } // lib.optionalAttrs hasSecretFile {
     authKeyFile = config.sops.secrets.tailscale-auth-key.path;
