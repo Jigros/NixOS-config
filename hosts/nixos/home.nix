@@ -99,6 +99,7 @@
       #caido
       wireshark
       nuclei
+      binsider # Analyze executables in the terminal
       jdk21
       pnpm
       yarn
@@ -117,6 +118,7 @@
       anydesk
       qbittorrent
       openrgb-with-all-plugins
+      andcli # 2FA for the shell
     
 
       # Just cool
