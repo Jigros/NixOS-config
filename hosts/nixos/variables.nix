@@ -29,11 +29,6 @@
       email = "209211492+Jigros@users.noreply.github.com";
     };
 
-    # Set this to a runtime secret file (for example /run/secrets/tailscale-auth-key)
-    # to let the NixOS Tailscale module authenticate automatically.
-    # Never put the actual tskey value in this repository.
-    tailscaleAuthKeyFile = null;
-
     autoUpgrade = false;
     autoGarbageCollector = true;
   };
