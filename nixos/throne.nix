@@ -29,13 +29,15 @@
   # Throne recreates its sing-box nftables table when TUN is restarted. Its
   # route bypass list does not currently place the whole Tailscale CGNAT range
   # into inet4_local_address_set, so TCP to tailnet peers can be redirected to
-  # the local proxy. Re-apply the bypass periodically so it also survives a
+  # the local proxy. Throne also redirects DNS to its own resolver before the
+  # address-set bypass is evaluated, which breaks Tailscale MagicDNS queries to
+  # 100.100.100.100. Re-apply both bypasses periodically so they survive a
   # Throne restart or a VPS receiving a different Tailscale address.
   systemd.services.throne-tailscale-bypass = {
     description = "Keep Tailscale traffic out of Throne transparent proxy";
     after = ["tailscaled.service"];
     wants = ["tailscaled.service"];
-    path = [pkgs.nftables pkgs.tailscale pkgs.iproute2 pkgs.gnused];
+    path = [pkgs.nftables pkgs.tailscale pkgs.iproute2 pkgs.gnused pkgs.gnugrep];
     serviceConfig.Type = "oneshot";
     script = ''
       set -u
@@ -43,6 +45,17 @@
       if ! nft list set inet sing-box inet4_local_address_set >/dev/null 2>&1; then
         # Throne/TUN is not running yet. The timer will retry.
         exit 0
+      fi
+
+      # MagicDNS must bypass Throne's earlier dport 53 redirect. Put this rule
+      # at the start of the output chain and avoid duplicates across timer runs.
+      if ! nft list chain inet sing-box output 2>/dev/null \
+        | grep -Fq 'comment "tailscale-magicdns-bypass"'; then
+        nft insert rule inet sing-box output \
+          ip daddr 100.100.100.100 \
+          meta l4proto '{ tcp, udp }' th dport 53 \
+          counter return comment 'tailscale-magicdns-bypass' \
+          2>/dev/null || true
       fi
 
       if nft get element inet sing-box inet4_local_address_set '{ 100.64.0.0/10 }' >/dev/null 2>&1; then
