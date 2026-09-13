@@ -33,10 +33,12 @@
   # Throne restart or a VPS receiving a different Tailscale address.
   systemd.services.throne-tailscale-bypass = {
     description = "Keep Tailscale traffic out of Throne transparent proxy";
-    path = [pkgs.nftables pkgs.tailscale];
+    after = ["tailscaled.service"];
+    wants = ["tailscaled.service"];
+    path = [pkgs.nftables pkgs.tailscale pkgs.iproute2 pkgs.gnused];
     serviceConfig.Type = "oneshot";
     script = ''
-      set -eu
+      set -u
 
       if ! nft list set inet sing-box inet4_local_address_set >/dev/null 2>&1; then
         # Throne/TUN is not running yet. The timer will retry.
@@ -48,13 +50,27 @@
       fi
 
       # Throne inserts this machine's own Tailscale /32 into the interval set.
-      # Remove it first because nftables interval sets reject overlapping ranges.
-      tailscale ip -4 2>/dev/null | while IFS= read -r address; do
-        [ -n "$address" ] || continue
+      # Remove every locally discovered tailscale0 IPv4 address first because
+      # nftables interval sets reject a /10 that overlaps an existing /32.
+      local_addresses="$(
+        {
+          tailscale ip -4 2>/dev/null || true
+          ip -4 -o addr show dev tailscale0 2>/dev/null | sed -n 's/.* inet \([^/ ]*\).*/\1/p'
+        } | sed '/^$/d' | sort -u
+      )"
+
+      # Keep the currently known address as a fallback for activation ordering
+      # where tailscale0 is briefly unavailable during nixos-rebuild.
+      local_addresses="${local_addresses}
+100.88.176.74"
+
+      printf '%s\n' "$local_addresses" | sed '/^$/d' | sort -u | while IFS= read -r address; do
         nft delete element inet sing-box inet4_local_address_set "{ $address }" 2>/dev/null || true
       done
 
-      nft add element inet sing-box inet4_local_address_set '{ 100.64.0.0/10 }'
+      # Do not fail nixos-rebuild if Throne rewrites the set concurrently; the
+      # timer retries every 30 seconds and will converge once the set is stable.
+      nft add element inet sing-box inet4_local_address_set '{ 100.64.0.0/10 }' 2>/dev/null || true
     '';
   };
 
