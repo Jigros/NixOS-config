@@ -61,7 +61,7 @@
 
       # Keep the currently known address as a fallback for activation ordering
       # where tailscale0 is briefly unavailable during nixos-rebuild.
-      local_addresses="${local_addresses}
+      local_addresses="''${local_addresses}
 100.88.176.74"
 
       printf '%s\n' "$local_addresses" | sed '/^$/d' | sort -u | while IFS= read -r address; do
