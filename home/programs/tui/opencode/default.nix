@@ -1,4 +1,6 @@
 {pkgs, ...}: let
+  omnirouteVersion = "3.8.50";
+
   restoreOpenCodeBackup = pkgs.writeShellApplication {
     name = "restore-opencode-backup";
     runtimeInputs = with pkgs; [coreutils rsync systemd];
@@ -49,6 +51,8 @@
       [[ -f "$HOME/.local/share/opencode/auth.json" ]] && chmod 600 "$HOME/.local/share/opencode/auth.json"
       [[ -f "$HOME/.omniroute/server.env" ]] && chmod 600 "$HOME/.omniroute/server.env"
 
+      systemctl --user start omniroute.service
+
       echo "Restored OpenCode state to $HOME/.local/share/opencode"
       echo "Restored OmniRoute state to $HOME/.omniroute"
       echo "Previous local state (if any) was saved in $safety"
@@ -81,6 +85,33 @@ in {
     };
 
     tui.theme = "system";
+  };
+
+  # Upstream's Nix flake only exposes a devShell, not an installable package.
+  # Pin the npm release and let npx cache it under ~/.cache/npm.
+  systemd.user.services.omniroute = {
+    Unit = {
+      Description = "OmniRoute AI gateway";
+      After = ["network-online.target"];
+      Wants = ["network-online.target"];
+    };
+
+    Service = {
+      Type = "simple";
+      ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p %h/.omniroute";
+      ExecStart = "${pkgs.nodejs_22}/bin/npx --yes omniroute@${omnirouteVersion} --no-open";
+      WorkingDirectory = "%h/.omniroute";
+      Environment = [
+        "PORT=20128"
+        "NODE_ENV=production"
+        "NPM_CONFIG_CACHE=%h/.cache/npm"
+      ];
+      EnvironmentFile = "-%h/.omniroute/server.env";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+
+    Install.WantedBy = ["default.target"];
   };
 
   home.packages = [restoreOpenCodeBackup];
