@@ -1,6 +1,7 @@
 # Spotatui is a lightweight terminal music player for Spotify metadata and YouTube playback.
 {
   config,
+  inputs,
   pkgs,
   pkgs-unstable,
   lib,
@@ -9,19 +10,12 @@
   c = config.lib.stylix.colors;
   rgb = base: "${c."${base}-rgb-r"}, ${c."${base}-rgb-g"}, ${c."${base}-rgb-b"}";
 
-  # Keep Spotatui lean: Spotify Web API remains available for library/discover,
-  # while audio is played through YouTube. Do not build native Spotify streaming,
-  # AI DJ, visualizer, Discord RPC, telemetry, MCP, or other unused features.
-  spotatuiLite = pkgs-unstable.spotatui.overrideAttrs (_old: {
-    buildFeatures = [
-      "cover-art"
-      "mpris"
-      "youtube"
-    ];
-  });
+  # Pin upstream Spotatui 0.42.0. This release fixes startup crashes on Spotify
+  # 429 responses and properly prefers a user-owned Spotify app/client ID.
+  spotatui = inputs.spotatui.packages.${pkgs.system}.default;
 in {
   home.packages = [
-    spotatuiLite
+    spotatui
     pkgs-unstable.yt-dlp
     pkgs-unstable.ffmpeg
   ];
@@ -32,7 +26,7 @@ in {
 
   xdg.desktopEntries.spotatui = {
     name = "Spotify";
-    exec = "${pkgs.ghostty}/bin/ghostty +new-window -e ${spotatuiLite}/bin/spotatui";
+    exec = "${pkgs.ghostty}/bin/ghostty +new-window -e ${spotatui}/bin/spotatui";
     icon = "spotify";
     comment = "Spotify discovery with lightweight YouTube playback";
     categories = ["Audio" "Music"];
