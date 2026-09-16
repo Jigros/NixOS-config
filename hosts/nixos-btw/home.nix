@@ -26,6 +26,7 @@
     ../../home/programs/tui/elio
     ../../home/programs/tui/wikiman
     ../../home/programs/tui/navi
+    ../../home/programs/tui/opencode
     ../../home/programs/tui/pkgs.nix
 
     ## GROUPS
@@ -58,6 +59,7 @@
         ".local/share"
         ".local/state"
         ".cache"
+        ".omniroute"
         ".steam"
         "Notes"
         "Projects"
