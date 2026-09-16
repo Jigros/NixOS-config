@@ -101,6 +101,7 @@ in {
       WorkingDirectory = "%h/.omniroute";
       Environment = [
         "PORT=20128"
+        "OMNIROUTE_SERVER_HOST=127.0.0.1"
         "NODE_ENV=production"
         "NPM_CONFIG_CACHE=%h/.cache/npm"
       ];
