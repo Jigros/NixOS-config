@@ -83,8 +83,6 @@ in {
         };
       };
     };
-
-    tui.theme = "system";
   };
 
   # Upstream's Nix flake only exposes a devShell, not an installable package.
