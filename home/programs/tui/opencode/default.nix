@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}: let
+{pkgs, ...}: let
   restoreOpenCodeBackup = pkgs.writeShellApplication {
     name = "restore-opencode-backup";
     runtimeInputs = with pkgs; [coreutils rsync systemd];
@@ -77,7 +73,7 @@ in {
     ];
 
     # Reconstructed from the old OpenCode + OmniRoute backup.
-    # OmniRoute owns the actual provider accounts, fallback order and compression.
+    # OmniRoute owns provider accounts, fallback order and RTK/Caveman compression.
     settings = {
       autoupdate = false;
       model = "omniroute/SOL-MEDIUM";
@@ -88,32 +84,21 @@ in {
         options.baseURL = "http://127.0.0.1:20128/v1";
 
         models = {
-          "FREE-FAST".name = "FREE-FAST";
-          "FREE-CODE".name = "FREE-CODE";
-          "FREE-HARD".name = "FREE-HARD";
-          "SOL-XHIGH".name = "SOL-XHIGH";
-          "SOL-MEDIUM".name = "SOL-MEDIUM";
-          "SOL-HIGH".name = "SOL-HIGH";
-          "LUNA-LOW".name = "LUNA-LOW";
-          "TERRA-MEDIUM".name = "TERRA-MEDIUM";
+          "FREE-FAST" = {name = "FREE-FAST";};
+          "FREE-CODE" = {name = "FREE-CODE";};
+          "FREE-HARD" = {name = "FREE-HARD";};
+          "SOL-XHIGH" = {name = "SOL-XHIGH";};
+          "SOL-MEDIUM" = {name = "SOL-MEDIUM";};
+          "SOL-HIGH" = {name = "SOL-HIGH";};
+          "LUNA-LOW" = {name = "LUNA-LOW";};
+          "TERRA-MEDIUM" = {name = "TERRA-MEDIUM";};
         };
       };
     };
 
-    tui = {
-      theme = "system";
-    };
+    tui.theme = "system";
   };
 
   # One-time, explicit restoration helper. It is never run automatically.
   home.packages = [restoreOpenCodeBackup];
-
-  # auth.json and the OpenCode SQLite state live here; the laptop's existing
-  # impermanence rule already persists all of ~/.local/share.
-  assertions = [
-    {
-      assertion = config.home.homeDirectory != null;
-      message = "OpenCode restore helper requires home.homeDirectory.";
-    }
-  ];
 }
