@@ -1,4 +1,4 @@
-# Spotatui is a terminal music player for Spotify, YouTube and other sources.
+# Spotatui is a lightweight terminal music player for Spotify metadata and YouTube playback.
 {
   config,
   pkgs,
@@ -9,51 +9,35 @@
   c = config.lib.stylix.colors;
   rgb = base: "${c."${base}-rgb-r"}, ${c."${base}-rgb-g"}, ${c."${base}-rgb-b"}";
 
-  # nixpkgs 26.05 still ships an older Spotify-only Spotatui. Use the current
-  # unstable package, enable its AI DJ, and add the YouTube source so the DJ can
-  # resolve recommendations through YouTube when Spotify playback is unavailable.
-  spotatuiWithYoutube =
-    (pkgs-unstable.spotatui.override {
-      withAiDj = true;
-    }).overrideAttrs (old: {
-      buildFeatures = (old.buildFeatures or []) ++ ["youtube"];
-    });
+  # Keep Spotatui lean: Spotify Web API remains available for library/discover,
+  # while audio is played through YouTube. Do not build native Spotify streaming,
+  # AI DJ, visualizer, Discord RPC, telemetry, MCP, or other unused features.
+  spotatuiLite = pkgs-unstable.spotatui.overrideAttrs (_old: {
+    buildFeatures = [
+      "cover-art"
+      "mpris"
+      "youtube"
+    ];
+  });
 in {
   home.packages = [
-    spotatuiWithYoutube
+    spotatuiLite
     pkgs-unstable.yt-dlp
     pkgs-unstable.ffmpeg
-    pkgs-unstable.ollama
   ];
 
-  # Local model backend for Spotatui's DJ. This avoids requiring an Anthropic,
-  # OpenAI, Spotify Premium, or other paid API subscription for recommendations.
-  systemd.user.services.ollama = {
-    Unit = {
-      Description = "Ollama local model server for Spotatui AI DJ";
-      After = ["network-online.target"];
-    };
-    Service = {
-      ExecStart = "${pkgs-unstable.ollama}/bin/ollama serve";
-      Restart = "on-failure";
-      RestartSec = 3;
-      Environment = ["OLLAMA_HOST=127.0.0.1:11434"];
-    };
-    Install.WantedBy = ["default.target"];
-  };
-
   home.persistence."/persist" = lib.mkIf (config.var.impermanenceEnabled or false) {
-    directories = [".config/spotatui" ".config/spotify" ".ollama"];
+    directories = [".config/spotatui" ".config/spotify"];
   };
 
   xdg.desktopEntries.spotatui = {
     name = "Spotify";
-    exec = "${pkgs.ghostty}/bin/ghostty +new-window -e ${spotatuiWithYoutube}/bin/spotatui";
+    exec = "${pkgs.ghostty}/bin/ghostty +new-window -e ${spotatuiLite}/bin/spotatui";
     icon = "spotify";
-    comment = "Spotify recommendations with free YouTube playback";
+    comment = "Spotify discovery with lightweight YouTube playback";
     categories = ["Audio" "Music"];
     terminal = false;
-    settings.Keywords = "spotify;spotatui;youtube;music;dj;";
+    settings.Keywords = "spotify;spotatui;youtube;music;";
   };
 
   home.file.".config/spotatui/config.yml".text = ''
@@ -82,7 +66,6 @@ in {
       submit: enter
       copy_song_url: c
       copy_album_url: C
-      audio_analysis: v
       lyrics_view: B
       cover_art_view: G
       add_item_to_queue: z
@@ -95,7 +78,7 @@ in {
       seek_milliseconds: 5000
       volume_increment: 10
       volume_percent: 100
-      tick_rate_milliseconds: 16
+      tick_rate_milliseconds: 32
       enable_text_emphasis: true
       show_loading_indicator: true
       enforce_wide_search_bar: true
@@ -116,7 +99,6 @@ in {
       playing_icon: ▶
       paused_icon: ⏸
       set_window_title: true
-      visualizer_style: Equalizer
       dismissed_announcements: []
       relay_server_url: wss://spotatui-party.spotatui.workers.dev/ws
       stop_after_current_track: false
@@ -124,20 +106,11 @@ in {
       playbar_height_rows: 6
       library_height_percent: 30
       startup_behavior: continue
+      startup_route: discover
       disable_auto_update: true
       auto_update_delay: '0'
-      keepawake_enabled: true
-
-      # Free playback path: the DJ resolves track names against Spotify metadata
-      # first, then falls back to YouTube and plays them through yt-dlp.
+      keepawake_enabled: false
       ytdlp_path: ${pkgs-unstable.yt-dlp}/bin/yt-dlp
-      dj_backend: openai_compat
-      dj_base_url: http://127.0.0.1:11434/v1
-      dj_model: qwen3:4b
-      dj_batch_size: 6
-      dj_history_period: 30d
-      dj_avoid_library: false
-      dj_configured: true
     theme:
       preset: Custom
       active: ${rgb "base0D"}
