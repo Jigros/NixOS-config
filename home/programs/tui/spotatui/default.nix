@@ -1,29 +1,59 @@
-# Spotatui is a terminal user interface for Spotify, written in Rust. It allows you to control your Spotify playback and manage your playlists directly from the terminal.
+# Spotatui is a terminal music player for Spotify, YouTube and other sources.
 {
   config,
   pkgs,
+  pkgs-unstable,
   lib,
   ...
 }: let
   c = config.lib.stylix.colors;
   rgb = base: "${c."${base}-rgb-r"}, ${c."${base}-rgb-g"}, ${c."${base}-rgb-b"}";
+
+  # nixpkgs 26.05 still ships an older Spotify-only Spotatui. Use the current
+  # unstable package, enable its AI DJ, and add the YouTube source so the DJ can
+  # resolve recommendations through YouTube when Spotify playback is unavailable.
+  spotatuiWithYoutube =
+    (pkgs-unstable.spotatui.override {
+      withAiDj = true;
+    }).overrideAttrs (old: {
+      buildFeatures = (old.buildFeatures or []) ++ ["youtube"];
+    });
 in {
-  home.packages = with pkgs; [
-    spotatui
+  home.packages = [
+    spotatuiWithYoutube
+    pkgs-unstable.yt-dlp
+    pkgs-unstable.ffmpeg
+    pkgs-unstable.ollama
   ];
 
+  # Local model backend for Spotatui's DJ. This avoids requiring an Anthropic,
+  # OpenAI, Spotify Premium, or other paid API subscription for recommendations.
+  systemd.user.services.ollama = {
+    Unit = {
+      Description = "Ollama local model server for Spotatui AI DJ";
+      After = ["network-online.target"];
+    };
+    Service = {
+      ExecStart = "${pkgs-unstable.ollama}/bin/ollama serve";
+      Restart = "on-failure";
+      RestartSec = 3;
+      Environment = ["OLLAMA_HOST=127.0.0.1:11434"];
+    };
+    Install.WantedBy = ["default.target"];
+  };
+
   home.persistence."/persist" = lib.mkIf (config.var.impermanenceEnabled or false) {
-    directories = [".config/spotatui" ".config/spotify"];
+    directories = [".config/spotatui" ".config/spotify" ".ollama"];
   };
 
   xdg.desktopEntries.spotatui = {
     name = "Spotify";
-    exec = "${pkgs.ghostty}/bin/ghostty +new-window -e ${pkgs.spotatui}/bin/spotatui";
+    exec = "${pkgs.ghostty}/bin/ghostty +new-window -e ${spotatuiWithYoutube}/bin/spotatui";
     icon = "spotify";
-    comment = "Control Spotify from the terminal";
+    comment = "Spotify recommendations with free YouTube playback";
     categories = ["Audio" "Music"];
     terminal = false;
-    settings.Keywords = "spotify;spotatui;music;";
+    settings.Keywords = "spotify;spotatui;youtube;music;dj;";
   };
 
   home.file.".config/spotatui/config.yml".text = ''
@@ -97,6 +127,17 @@ in {
       disable_auto_update: true
       auto_update_delay: '0'
       keepawake_enabled: true
+
+      # Free playback path: the DJ resolves track names against Spotify metadata
+      # first, then falls back to YouTube and plays them through yt-dlp.
+      ytdlp_path: ${pkgs-unstable.yt-dlp}/bin/yt-dlp
+      dj_backend: openai_compat
+      dj_base_url: http://127.0.0.1:11434/v1
+      dj_model: qwen3:4b
+      dj_batch_size: 6
+      dj_history_period: 30d
+      dj_avoid_library: false
+      dj_configured: true
     theme:
       preset: Custom
       active: ${rgb "base0D"}
