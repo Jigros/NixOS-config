@@ -56,6 +56,10 @@
       url = "github:anotherhadi/default-creds";
       flake = false;
     };
+    spotatui = {
+      url = "github:LargeModGames/spotatui/v0.42.0";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
 
     # Server
     nixarr.url = "github:nix-media-server/nixarr";
