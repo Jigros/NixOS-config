@@ -1,6 +1,76 @@
 {pkgs, ...}: let
   omnirouteVersion = "3.8.50";
 
+  configureOmniRouteCompression = pkgs.writeShellApplication {
+    name = "configure-omniroute-compression";
+    runtimeInputs = with pkgs; [coreutils sqlite];
+    text = ''
+      set -euo pipefail
+
+      mkdir -p "$HOME/.omniroute"
+      db="$HOME/.omniroute/storage.sqlite"
+
+      # Fresh installs create the DB on first OmniRoute start; restored installs
+      # already have it. In the former case, simply apply this on the next start.
+      [[ -f "$db" ]] || exit 0
+
+      sqlite3 "$db" <<'SQL'
+      BEGIN IMMEDIATE;
+
+      INSERT INTO key_value (namespace, key, value)
+      VALUES ('compression', 'enabled', 'true')
+      ON CONFLICT(namespace, key) DO UPDATE SET value = excluded.value;
+
+      INSERT INTO key_value (namespace, key, value)
+      VALUES ('compression', 'defaultMode', '"stacked"')
+      ON CONFLICT(namespace, key) DO UPDATE SET value = excluded.value;
+
+      INSERT INTO key_value (namespace, key, value)
+      VALUES ('compression', 'autoTriggerMode', '"stacked"')
+      ON CONFLICT(namespace, key) DO UPDATE SET value = excluded.value;
+
+      INSERT INTO key_value (namespace, key, value)
+      VALUES ('compression', 'autoTriggerTokens', '32000')
+      ON CONFLICT(namespace, key) DO UPDATE SET value = excluded.value;
+
+      INSERT INTO key_value (namespace, key, value)
+      VALUES (
+        'compression',
+        'stackedPipeline',
+        '[{"engine":"rtk","intensity":"standard"},{"engine":"caveman","intensity":"full"}]'
+      )
+      ON CONFLICT(namespace, key) DO UPDATE SET value = excluded.value;
+
+      INSERT INTO key_value (namespace, key, value)
+      VALUES ('compression', 'mcpDescriptionCompressionEnabled', 'true')
+      ON CONFLICT(namespace, key) DO UPDATE SET value = excluded.value;
+
+      INSERT INTO key_value (namespace, key, value)
+      VALUES (
+        'compression',
+        'rtkConfig',
+        '{"enabled":true,"intensity":"standard","applyToToolResults":true,"applyToCodeBlocks":false,"applyToAssistantMessages":false,"deduplicateThreshold":3,"enableGrouping":true,"groupingThreshold":3,"stripCodeComments":false,"preserveDocstrings":true,"rawOutputRetention":"never"}'
+      )
+      ON CONFLICT(namespace, key) DO UPDATE SET value = json_set(
+        CASE WHEN json_valid(key_value.value) THEN key_value.value ELSE '{}' END,
+        '$.enabled', json('true'),
+        '$.intensity', 'standard',
+        '$.applyToToolResults', json('true'),
+        '$.applyToCodeBlocks', json('false'),
+        '$.applyToAssistantMessages', json('false'),
+        '$.deduplicateThreshold', 3,
+        '$.enableGrouping', json('true'),
+        '$.groupingThreshold', 3,
+        '$.stripCodeComments', json('false'),
+        '$.preserveDocstrings', json('true'),
+        '$.rawOutputRetention', 'never'
+      );
+
+      COMMIT;
+SQL
+    '';
+  };
+
   restoreOpenCodeBackup = pkgs.writeShellApplication {
     name = "restore-opencode-backup";
     runtimeInputs = with pkgs; [coreutils rsync systemd];
@@ -99,7 +169,7 @@ in {
 
     Service = {
       Type = "simple";
-      ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p %h/.omniroute";
+      ExecStartPre = "${configureOmniRouteCompression}/bin/configure-omniroute-compression";
       ExecStart = "${pkgs.nodejs_22}/bin/npx --yes omniroute@${omnirouteVersion} --no-open";
       WorkingDirectory = "%h/.omniroute";
       Environment = [
