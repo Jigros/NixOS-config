@@ -70,7 +70,10 @@ in {
       provider.omniroute = {
         npm = "@ai-sdk/openai-compatible";
         name = "OmniRoute";
-        options.baseURL = "http://127.0.0.1:20128/v1";
+        options = {
+          baseURL = "http://127.0.0.1:20128/v1";
+          apiKey = "{file:/run/secrets/omniroute-opencode-key}";
+        };
         models = {
           "FREE-FAST" = {name = "FREE-FAST";};
           "FREE-CODE" = {name = "FREE-CODE";};
