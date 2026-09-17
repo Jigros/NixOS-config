@@ -27,7 +27,7 @@
     #./persistence.nix # impermanence: what to keep once "/" is wiped on boot
     #./usbguard.nix
     #./disko.nix
-    #./secrets
+    ./secrets
 
     ./hardware-configuration.nix
     ./variables.nix
