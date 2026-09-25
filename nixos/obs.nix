@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{config, pkgs, ...}: {
   # OBS with Android phone camera support, background removal and a virtual
   # V4L2 camera that applications such as Zoom can select.
   programs.obs-studio = {
@@ -9,6 +9,15 @@
       obs-backgroundremoval
     ];
   };
+
+  # OBS Virtual Camera requires a v4l2loopback device on Linux.
+  boot.extraModulePackages = [
+    config.boot.kernelPackages.v4l2loopback
+  ];
+  boot.kernelModules = ["v4l2loopback"];
+  boot.extraModprobeConfig = ''
+    options v4l2loopback exclusive_caps=1 card_label="OBS Virtual Camera"
+  '';
 
   # DroidCam's USB mode uses ADB. On NixOS 26.05 systemd handles USB uaccess
   # rules automatically; installing android-tools is enough to provide adb.
