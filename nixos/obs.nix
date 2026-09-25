@@ -1,4 +1,4 @@
-{config, pkgs, ...}: {
+{pkgs, ...}: {
   # OBS with Android phone camera support, background removal and a virtual
   # V4L2 camera that applications such as Zoom can select.
   programs.obs-studio = {
@@ -10,11 +10,9 @@
     ];
   };
 
-  # DroidCam's USB mode uses ADB. Enabling the NixOS ADB module also installs
-  # the required udev rules; the user must be in adbusers for unprivileged USB
-  # access.
-  programs.adb.enable = true;
-  users.users.${config.var.username}.extraGroups = [
-    "adbusers"
+  # DroidCam's USB mode uses ADB. On NixOS 26.05 systemd handles USB uaccess
+  # rules automatically; installing android-tools is enough to provide adb.
+  environment.systemPackages = with pkgs; [
+    android-tools
   ];
 }
