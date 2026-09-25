@@ -20,6 +20,7 @@
     ../../nixos/docker.nix
     ../../nixos/printing.nix
     ../../nixos/tailscale.nix
+    ../../nixos/obs.nix
     ../../home/programs/gui/helium/system.nix # I hate browser's configuration..
 
     # Optional host modules
