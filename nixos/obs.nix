@@ -32,7 +32,7 @@ in {
   # V4L2 camera that applications such as Zoom can select.
   programs.obs-studio = {
     enable = true;
-    enableVirtualCamera = true;
+    enableVirtualCamera = false;
     plugins = with pkgs.obs-studio-plugins; [
       droidcam-obs
       obs-backgroundremoval
