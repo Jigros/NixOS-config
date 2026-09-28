@@ -3,7 +3,7 @@
   # existing USB ADB connection, so OBS can use a stable localhost URL.
   remoteCamUsb = pkgs.writeShellScriptBin "remotecam-usb" ''
     set -eu
-    case "${1:-start}" in
+    case "''${1:-start}" in
       start)
         ${pkgs.android-tools}/bin/adb -d wait-for-device
         ${pkgs.android-tools}/bin/adb -d forward --remove tcp:18080 >/dev/null 2>&1 || true
