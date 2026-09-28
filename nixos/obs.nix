@@ -1,35 +1,29 @@
 {config, pkgs, ...}: let
-  # PopDroidCam is a small upstream wrapper around scrcpy camera capture.
-  # Package the CLI declaratively instead of running its distro-specific installer.
-  popDroidCam = pkgs.stdenvNoCC.mkDerivation {
-    pname = "popdroidcam";
-    version = "1.1.3";
-
-    src = pkgs.fetchFromGitHub {
-      owner = "MaxySpark";
-      repo = "PopDroidCam";
-      rev = "eec4118fdeb560ec3a0c8f2962fa8e8630e22417";
-      sha256 = "0wbiskiym7j005w9ab3c9jh3fpvf2gx3zw6sw6v0jb93z3q3qi87";
-    };
-
-    nativeBuildInputs = [pkgs.makeWrapper];
-
-    installPhase = ''
-      runHook preInstall
-      mkdir -p $out/share/popdroidcam $out/bin
-      cp -r . $out/share/popdroidcam/
-      chmod +x $out/share/popdroidcam/popdroidcam
-      makeWrapper $out/share/popdroidcam/popdroidcam $out/bin/popdroidcam \
-        --prefix PATH : ${pkgs.lib.makeBinPath [
-          pkgs.android-tools pkgs.scrcpy pkgs.v4l-utils pkgs.bc pkgs.coreutils
-          pkgs.gnugrep pkgs.gnused pkgs.gawk pkgs.procps pkgs.kmod
-        ]}
-      runHook postInstall
-    '';
-  };
+  # RemoteCam serves MJPEG on the phone. This helper exposes its port over the
+  # existing USB ADB connection, so OBS can use a stable localhost URL.
+  remoteCamUsb = pkgs.writeShellScriptBin "remotecam-usb" ''
+    set -eu
+    case "${1:-start}" in
+      start)
+        ${pkgs.android-tools}/bin/adb -d wait-for-device
+        ${pkgs.android-tools}/bin/adb -d forward --remove tcp:18080 >/dev/null 2>&1 || true
+        ${pkgs.android-tools}/bin/adb -d forward tcp:18080 tcp:8080 >/dev/null
+        echo "RemoteCam USB: http://127.0.0.1:18080/cam.mjpeg"
+        ;;
+      stop)
+        ${pkgs.android-tools}/bin/adb -d forward --remove tcp:18080 >/dev/null 2>&1 || true
+        ;;
+      status)
+        ${pkgs.android-tools}/bin/adb -d forward --list | ${pkgs.gnugrep}/bin/grep 'tcp:18080 tcp:8080' || true
+        ;;
+      *)
+        echo "usage: remotecam-usb [start|stop|status]" >&2
+        exit 2
+        ;;
+    esac
+  '';
 in {
-  # OBS with Android phone camera support, background removal and a virtual
-  # V4L2 camera that applications such as Zoom can select.
+  # Keep DroidCam as a fallback while RemoteCam is being evaluated.
   programs.obs-studio = {
     enable = true;
     enableVirtualCamera = false;
@@ -39,27 +33,22 @@ in {
     ];
   };
 
-  # OBS Virtual Camera requires a v4l2loopback device on Linux.
+  # OBS Virtual Camera requires a single v4l2loopback device on Linux.
+  # It is configured explicitly to avoid duplicate modprobe options.
   boot.extraModulePackages = [
     config.boot.kernelPackages.v4l2loopback
   ];
   boot.kernelModules = ["v4l2loopback"];
   boot.extraModprobeConfig = ''
-    options v4l2loopback devices=2 video_nr=1,2 exclusive_caps=1,1 card_label="OBS Virtual Camera,PopDroidCam"
+    options v4l2loopback devices=1 video_nr=1 exclusive_caps=1 card_label="OBS Virtual Camera"
   '';
 
-  # DroidCam's USB mode uses ADB. On NixOS 26.05 systemd handles USB uaccess
-  # rules automatically; installing android-tools is enough to provide adb.
   environment.systemPackages = with pkgs; [
     android-tools
-    scrcpy
-    v4l-utils
-    popDroidCam
+    remoteCamUsb
   ];
 
-  # Keep the ADB server alive for DroidCam so the OBS plugin never blocks
-  # the UI while waiting for adb start-server. Use adb's default local socket;
-  # setting ADB_SERVER_SOCKET to a hostname makes Android Tools 35 abort.
+  # Keep the ADB server alive so USB camera forwarding is immediately available.
   systemd.user.services.adb-server = {
     description = "Android Debug Bridge server";
     wantedBy = ["default.target"];
