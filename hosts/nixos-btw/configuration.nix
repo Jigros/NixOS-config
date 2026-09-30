@@ -34,6 +34,15 @@
     ./variables.nix
   ];
 
+  # TEMPORARY — Telegram API registration from this host only.
+  # TLS verification passed against this endpoint on 2026-10-01.
+  # Remove these lines after registering the API application:
+  # https://github.com/Flowseal/zapret-discord-youtube/discussions/11494
+  # NixOS merges this lines option with the existing Tailscale extraHosts.
+  networking.extraHosts = ''
+    149.154.167.220 my.telegram.org
+  '';
+
   networking.firewall.enable = false;
 
   home-manager.users."${config.var.username}" = import ./home.nix;
