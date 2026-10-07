@@ -1,5 +1,48 @@
 {pkgs, ...}: let
-  omnirouteVersion = "3.8.50";
+  omnirouteVersion = "3.8.51";
+
+  opencodeWrapped = pkgs.stdenv.mkDerivation rec {
+    pname = "opencode";
+    version = "1.18.32";
+    src = pkgs.fetchurl {
+      url = "https://github.com/anomalyco/opencode/releases/download/v${version}/opencode-linux-x64.tar.gz";
+      sha256 = "3046e0404fdc60fb80307e7a47824ba07477364178a4d09baa8548496dd6d43b";
+    };
+    sourceRoot = ".";
+    unpackPhase = ''
+      tar -xzf $src
+    '';
+    installPhase = ''
+      mkdir -p $out/bin $out/libexec
+      install -m755 opencode $out/libexec/opencode-real
+      cat > $out/bin/opencode <<EOF
+#!${pkgs.bash}/bin/bash
+set -eo pipefail
+
+# OpenCode 1.x keeps all sessions in one SQLite DB by default. Concurrent
+# processes can deadlock on that shared DB, so use one DB per project while
+# keeping the normal shared config, credentials, cache, and OmniRoute account.
+if [[ -z "\''${OPENCODE_DB:-}" ]]; then
+  project_root="\$PWD"
+  git_root="\$(${pkgs.git}/bin/git -C "\$PWD" rev-parse --show-toplevel 2>/dev/null || true)"
+  [[ -n "\$git_root" ]] && project_root="\$git_root"
+
+  db_dir="\''${XDG_DATA_HOME:-\$HOME/.local/share}/opencode/project-db"
+  ${pkgs.coreutils}/bin/mkdir -p "\$db_dir"
+
+  project_hash="\$(printf '%s' "\$project_root" | ${pkgs.coreutils}/bin/sha256sum | ${pkgs.coreutils}/bin/cut -c1-16)"
+  project_name="\$(${pkgs.coreutils}/bin/basename "\$project_root" | ${pkgs.coreutils}/bin/tr -c 'A-Za-z0-9._-' '_')"
+  export OPENCODE_DB="\$db_dir/\''${project_name}-\''${project_hash}.sqlite"
+fi
+
+exec ${pkgs.stdenv.cc.bintools.dynamicLinker} \
+  --library-path "${pkgs.lib.makeLibraryPath [pkgs.glibc pkgs.stdenv.cc.cc.lib]}:\$LD_LIBRARY_PATH" \
+  "$out/libexec/opencode-real" "\$@"
+EOF
+      chmod +x $out/bin/opencode
+    '';
+    dontFixup = true;
+  };
 
   configureOmniRouteCompression = pkgs.writeShellApplication {
     name = "configure-omniroute-compression";
@@ -131,6 +174,7 @@ SQL
 in {
   programs.opencode = {
     enable = true;
+    package = opencodeWrapped;
     extraPackages = with pkgs; [git ripgrep fd jq];
 
     settings = {
@@ -148,11 +192,10 @@ in {
           "FREE-FAST" = {name = "FREE-FAST";};
           "FREE-CODE" = {name = "FREE-CODE";};
           "FREE-HARD" = {name = "FREE-HARD";};
-          "SOL-XHIGH" = {name = "SOL-XHIGH";};
           "SOL-MEDIUM" = {name = "SOL-MEDIUM";};
           "SOL-HIGH" = {name = "SOL-HIGH";};
           "LUNA-LOW" = {name = "LUNA-LOW";};
-          "TERRA-MEDIUM" = {name = "TERRA-MEDIUM";};
+          "LUNA-MEDIUM" = {name = "LUNA-MEDIUM";};
         };
       };
     };
