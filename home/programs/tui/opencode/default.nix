@@ -44,6 +44,25 @@ EOF
     dontFixup = true;
   };
 
+  opencodeQueueConfig = pkgs.writeText "opencode-omniroute-haproxy.cfg" ''
+    global
+      maxconn 64
+
+    defaults
+      mode http
+      timeout connect 10s
+      timeout client 1h
+      timeout server 1h
+      timeout queue 1h
+
+    frontend opencode
+      bind 127.0.0.1:20129
+      default_backend omniroute
+
+    backend omniroute
+      server local 127.0.0.1:20128 maxconn 1
+  '';
+
   configureOmniRouteCompression = pkgs.writeShellApplication {
     name = "configure-omniroute-compression";
     runtimeInputs = with pkgs; [coreutils sqlite];
@@ -185,7 +204,7 @@ in {
         npm = "@ai-sdk/openai-compatible";
         name = "OmniRoute";
         options = {
-          baseURL = "http://127.0.0.1:20128/v1";
+          baseURL = "http://127.0.0.1:20129/v1";
           apiKey = "{file:/run/secrets/omniroute-opencode-key}";
         };
         models = {
@@ -203,6 +222,23 @@ in {
 
   # Upstream's Nix flake only exposes a devShell, not an installable package.
   # Pin the npm release and let npx cache it under ~/.cache/npm.
+  systemd.user.services.opencode-omniroute-queue = {
+    Unit = {
+      Description = "Serialize OpenCode requests to the single Codex account";
+      After = ["omniroute.service"];
+      Wants = ["omniroute.service"];
+    };
+
+    Service = {
+      Type = "simple";
+      ExecStart = "${pkgs.haproxy}/bin/haproxy -W -db -f ${opencodeQueueConfig}";
+      Restart = "on-failure";
+      RestartSec = 2;
+    };
+
+    Install.WantedBy = ["default.target"];
+  };
+
   systemd.user.services.omniroute = {
     Unit = {
       Description = "OmniRoute AI gateway";
@@ -219,6 +255,7 @@ in {
         "PORT=20128"
         "OMNIROUTE_SERVER_HOST=127.0.0.1"
         "NODE_ENV=production"
+        "NODE_OPTIONS=--max-old-space-size=8192"
         "NPM_CONFIG_CACHE=%h/.cache/npm"
       ];
       EnvironmentFile = "-%h/.omniroute/server.env";
