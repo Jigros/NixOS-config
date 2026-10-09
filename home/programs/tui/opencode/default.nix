@@ -200,6 +200,16 @@ in {
       autoupdate = false;
       model = "omniroute/SOL-MEDIUM";
 
+      # Keep long-running project sessions usable without letting each request
+      # grow into a 400k+ token prompt. The model limit is intentionally a
+      # conservative local threshold for OpenCode compaction, not an upstream
+      # Codex capability limit.
+      compaction = {
+        auto = true;
+        prune = true;
+        reserved = 30000;
+      };
+
       provider.omniroute = {
         npm = "@ai-sdk/openai-compatible";
         name = "OmniRoute";
@@ -211,10 +221,22 @@ in {
           "FREE-FAST" = {name = "FREE-FAST";};
           "FREE-CODE" = {name = "FREE-CODE";};
           "FREE-HARD" = {name = "FREE-HARD";};
-          "SOL-MEDIUM" = {name = "SOL-MEDIUM";};
-          "SOL-HIGH" = {name = "SOL-HIGH";};
-          "LUNA-LOW" = {name = "LUNA-LOW";};
-          "LUNA-MEDIUM" = {name = "LUNA-MEDIUM";};
+          "SOL-MEDIUM" = {
+            name = "SOL-MEDIUM";
+            limit = {context = 220000; output = 32000;};
+          };
+          "SOL-HIGH" = {
+            name = "SOL-HIGH";
+            limit = {context = 220000; output = 32000;};
+          };
+          "LUNA-LOW" = {
+            name = "LUNA-LOW";
+            limit = {context = 220000; output = 32000;};
+          };
+          "LUNA-MEDIUM" = {
+            name = "LUNA-MEDIUM";
+            limit = {context = 220000; output = 32000;};
+          };
         };
       };
     };
