@@ -107,6 +107,37 @@ EOF
       VALUES ('compression', 'mcpDescriptionCompressionEnabled', 'true')
       ON CONFLICT(namespace, key) DO UPDATE SET value = excluded.value;
 
+      -- Dedicated hidden combo for OpenCode's compaction agent. It routes to
+      -- the same Luna Medium backend, but OpenCode advertises a larger local
+      -- context limit for this alias so an already oversized session can be
+      -- summarized once without raising the normal working-session limit.
+      INSERT INTO combos (
+        id, name, data, sort_order, created_at, updated_at,
+        system_message, tool_filter_regex, context_cache_protection
+      )
+      SELECT
+        '5a47e6c1-2d2c-4a8d-a4a4-cf0c75440520',
+        'LUNA-COMPACT',
+        json_set(
+          data,
+          '$.name', 'LUNA-COMPACT',
+          '$.id', '5a47e6c1-2d2c-4a8d-a4a4-cf0c75440520',
+          '$.isHidden', json('true'),
+          '$.sortOrder', 99
+        ),
+        99,
+        strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+        strftime('%Y-%m-%dT%H:%M:%fZ', 'now'),
+        system_message,
+        tool_filter_regex,
+        context_cache_protection
+      FROM combos
+      WHERE name = 'LUNA-MEDIUM'
+      ON CONFLICT(name) DO UPDATE SET
+        data = excluded.data,
+        sort_order = excluded.sort_order,
+        updated_at = excluded.updated_at;
+
       INSERT INTO key_value (namespace, key, value)
       VALUES (
         'compression',
@@ -210,6 +241,10 @@ in {
         reserved = 30000;
       };
 
+      agent.compaction = {
+        model = "omniroute/LUNA-COMPACT";
+      };
+
       provider.omniroute = {
         npm = "@ai-sdk/openai-compatible";
         name = "OmniRoute";
@@ -236,6 +271,10 @@ in {
           "LUNA-MEDIUM" = {
             name = "LUNA-MEDIUM";
             limit = {context = 220000; output = 32000;};
+          };
+          "LUNA-COMPACT" = {
+            name = "LUNA-COMPACT";
+            limit = {context = 520000; output = 32000;};
           };
         };
       };
@@ -287,6 +326,10 @@ in {
 
     Install.WantedBy = ["default.target"];
   };
+
+  # OpenCode can rewrite its config at runtime. Always restore the
+  # declarative Home Manager version on activation.
+  xdg.configFile."opencode/opencode.json".force = true;
 
   home.packages = [restoreOpenCodeBackup];
 }
