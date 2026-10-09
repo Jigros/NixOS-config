@@ -239,6 +239,11 @@ in {
         auto = true;
         prune = true;
         reserved = 30000;
+        # For legacy oversized sessions, summarize the older history while
+        # keeping a large recent tail verbatim. This avoids a single 400k+
+        # bootstrap summary request and lands the post-compaction context back
+        # under the normal working limit.
+        preserve_recent_tokens = 150000;
       };
 
       agent.compaction = {
